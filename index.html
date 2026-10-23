@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CelebraAI — GenAI Celebration & Event Planner | Weddings, Birthdays & Festivals</title>
+  <meta name="description" content="AI-powered luxury celebration architect. Seamlessly organize weddings, birthdays, and community galas with smart budgets, timelines, vendor checklists, and personalized ideas.">
+  <meta name="theme-color" content="#E43D12">
+
+  <!-- Google Fonts: Cinzel & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/animations.css">
+  <link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+
+  <!-- Texture Overlays & Ambient Lighting -->
+  <div class="texture-canvas-overlay" aria-hidden="true"></div>
+  <div class="ambient-glow-mesh" aria-hidden="true"></div>
+
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress-track" aria-hidden="true">
+    <div class="scroll-progress-bar"></div>
+  </div>
+
+  <!-- Header Navigation -->
+  <header class="header-nav">
+    <div class="container nav-container">
+      <a href="#hero" class="brand-badge" aria-label="CelebraAI Home">
+        <div class="brand-icon-wrapper">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <span class="brand-title">CelebraAI</span>
+          <span class="brand-subtitle">Event Experience Architect</span>
+        </div>
+      </a>
+
+      <!-- Event Switcher in Header -->
+      <div class="event-selector-wrap">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-coral)" stroke-width="2.5">
+          <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line>
+        </svg>
+        <select id="header-event-select" class="event-selector-select" aria-label="Select Active Celebration Event">
+          <option value="wedding">💍 Luxury Wedding Gala</option>
+          <option value="birthday">🎂 Milestone Birthday Party</option>
+          <option value="community">🎪 Community Cultural Festival</option>
+        </select>
+      </div>
+
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links">
+          <li><a href="#hero" class="nav-link active">Overview</a></li>
+          <li><a href="#ai-studio" class="nav-link">GenAI Studio</a></li>
+          <li><a href="#budget" class="nav-link">Budget</a></li>
+          <li><a href="#timeline" class="nav-link">Timeline</a></li>
+          <li><a href="#vendors" class="nav-link">Vendors</a></li>
+          <li><a href="#ideas" class="nav-link">Ideas & Mood</a></li>
+        </ul>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn btn-sm btn-secondary" onclick="window.app.showApiKeyModal()" title="Gemini AI Key Settings" aria-label="Gemini API Key Settings">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg>
+          <span>AI Settings</span>
+        </button>
+
+        <button class="btn btn-sm btn-ghost" onclick="window.app.exportEventData()" title="Export Backup JSON" aria-label="Export Event Backup">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+        </button>
+
+        <button class="btn btn-sm btn-ghost" onclick="window.app.triggerImport()" title="Import JSON" aria-label="Import Event JSON">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+        </button>
+        <input type="file" id="import-file-input" style="display: none;" accept=".json" onchange="window.app.handleFileImport(event)" />
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main id="main-content">
+
+    <!-- 1. HERO SECTION -->
+    <section id="hero" class="hero-section">
+      <div class="container">
+        <div class="hero-grid">
+          
+          <!-- Hero Text -->
+          <div class="hero-content reveal-left">
+            <div class="hero-tagline">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span id="hero-type-badge">WEDDING ARCHITECTURE</span>
+            </div>
+
+            <h1 class="hero-title" id="hero-event-title">
+              The Royal Champagne & Coral Gala
+            </h1>
+
+            <p class="hero-description" id="hero-event-subtitle">
+              Ceremony & Grand Reception in the Botanical Orangery with cascading coral florals, amber candlelight, and curated culinary banquet.
+            </p>
+
+            <!-- Event Selector Tabs -->
+            <div class="event-type-tabs" role="tablist" aria-label="Celebration Types">
+              <button class="event-type-btn active" data-type="wedding" role="tab" aria-selected="true">
+                💍 Luxury Wedding
+              </button>
+              <button class="event-type-btn" data-type="birthday" role="tab" aria-selected="false">
+                🎂 Milestone Birthday
+              </button>
+              <button class="event-type-btn" data-type="community" role="tab" aria-selected="false">
+                🎪 Community Festival
+              </button>
+            </div>
+
+            <div class="hero-cta-group">
+              <a href="#ai-studio" class="btn btn-primary btn-lg">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <span>Spark Blueprint with AI</span>
+              </a>
+              <a href="#budget" class="btn btn-secondary btn-lg">
+                View Financial Hub
+              </a>
+            </div>
+          </div>
+
+          <!-- Hero Visual & Live Countdown Card -->
+          <div class="hero-visual-card reveal-right">
+            <div class="hero-image-wrap">
+              <img id="hero-cover-image" src="assets/images/wedding.jpg" alt="Luxury Event Setting" class="hero-image" />
+              <div class="hero-overlay-gradient"></div>
+
+              <!-- Live Countdown Banner -->
+              <div class="hero-countdown-overlay">
+                <div>
+                  <div style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-gold); font-weight: 700;">Countdown to Celebration</div>
+                  <div id="hero-event-location" style="font-size: 0.82rem; color: #FFFFFF; font-weight: 500;">Napa Valley, CA</div>
+                </div>
+
+                <div class="countdown-digits">
+                  <div class="digit-block">
+                    <span id="cd-days" class="digit-val">120</span>
+                    <span class="digit-label">Days</span>
+                  </div>
+                  <span class="digit-separator">:</span>
+                  <div class="digit-block">
+                    <span id="cd-hours" class="digit-val">14</span>
+                    <span class="digit-label">Hrs</span>
+                  </div>
+                  <span class="digit-separator">:</span>
+                  <div class="digit-block">
+                    <span id="cd-mins" class="digit-val">30</span>
+                    <span class="digit-label">Min</span>
+                  </div>
+                  <span class="digit-separator">:</span>
+                  <div class="digit-block">
+                    <span id="cd-secs" class="digit-val">00</span>
+                    <span class="digit-label">Sec</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Metrics Strip -->
+        <div class="metrics-strip stagger-container reveal-on-scroll">
+          <div class="metric-card">
+            <div class="metric-icon-box" style="background: rgba(228, 61, 18, 0.12); color: var(--color-coral);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Target Budget</span>
+              <span id="metric-budget" class="metric-number">$48,000</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box" style="background: rgba(239, 177, 29, 0.15); color: #B67A00;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Confirmed RSVP</span>
+              <span id="metric-rsvp" class="metric-number">96 Attending</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box" style="background: rgba(214, 83, 109, 0.14); color: var(--color-rose);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Milestones Done</span>
+              <span id="metric-tasks" class="metric-number">2/7 Completed</span>
+            </div>
+          </div>
+
+          <div class="metric-card">
+            <div class="metric-icon-box" style="background: rgba(255, 162, 182, 0.25); color: var(--color-rose-dark);">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            </div>
+            <div class="metric-info">
+              <span class="metric-label">Partner Vendors</span>
+              <span id="metric-vendors" class="metric-number">5 Roster</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 2. GENAI EVENT BRAIN & BLUEPRINT STUDIO -->
+    <section id="ai-studio" class="ai-studio-section">
+      <div class="container">
+        
+        <div class="section-header reveal-on-scroll">
+          <span class="section-tag">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            Generative Intelligence
+          </span>
+          <h2>The GenAI Celebration Architect</h2>
+          <p class="section-subtitle">
+            Synthesize themes, custom budget formulas, timeline schedules, and vendor checklists tailored to your vision.
+          </p>
+        </div>
+
+        <div class="ai-generator-grid">
+          
+          <!-- Generator Form -->
+          <div class="ai-form-card reveal-left">
+            <h3 style="margin-bottom: 1.25rem; font-size: 1.25rem;">Custom Synthesis Parameters</h3>
+            
+            <form id="ai-blueprint-form">
+              <div class="form-group">
+                <label for="ai-event-type" class="form-label">Celebration Type</label>
+                <select id="ai-event-type" class="form-select">
+                  <option value="wedding">💍 Luxury Wedding & Reception</option>
+                  <option value="birthday">🎂 Milestone Birthday Gala</option>
+                  <option value="community">🎪 Community Cultural Festival</option>
+                </select>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="ai-budget" class="form-label">Total Budget ($)</label>
+                  <input type="number" id="ai-budget" class="form-input" value="35000" min="1000" step="500" required />
+                </div>
+                <div class="form-group">
+                  <label for="ai-guests" class="form-label">Guest Count</label>
+                  <input type="number" id="ai-guests" class="form-input" value="120" min="5" step="5" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="ai-vibe" class="form-label">Aesthetic & Vibe</label>
+                <select id="ai-vibe" class="form-select">
+                  <option value="Opulent & Romantic">Opulent & Romantic (Candlelight & Roses)</option>
+                  <option value="Modern Chic & Minimalist">Modern Chic & Minimalist (Clean & Sleek)</option>
+                  <option value="Boho Sunset Warmth">Boho Sunset Warmth (Rattan & Amber)</option>
+                  <option value="High Energy Revelry">High Energy Revelry (Festive & Vibrant)</option>
+                  <option value="Whimsical Garden Fairy">Whimsical Garden Fairy (Lush Greens & Lights)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="ai-special-notes" class="form-label">
+                  <span>Special Priorities or Dietary Requests</span>
+                  <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal;">Optional</span>
+                </label>
+                <textarea id="ai-special-notes" class="form-textarea" rows="3" placeholder="e.g. Vegan 4-course banquet, sunset golden hour vow exchange, acoustic string trio, no single-use plastics..."></textarea>
+              </div>
+
+              <button type="submit" id="ai-generate-submit-btn" class="btn btn-primary" style="width: 100%;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                <span>Synthesize Bespoke Blueprint</span>
+              </button>
+            </form>
+          </div>
+
+          <!-- Generator Output Studio -->
+          <div class="ai-output-container reveal-right">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <h3 style="font-size: 1.25rem;">Synthesized Blueprint Studio</h3>
+              <button id="ai-adopt-blueprint-btn" class="btn btn-sm btn-gold" style="display: none;" onclick="window.app.applyLatestBlueprint()">
+                ✨ Apply to My Plan
+              </button>
+            </div>
+
+            <!-- Output Tabs -->
+            <div class="ai-output-tabs" role="tablist">
+              <button class="ai-tab-btn active" data-target="tab-theme" role="tab">🎨 Bespoke Theme</button>
+              <button class="ai-tab-btn" data-target="tab-allocations" role="tab">💰 Smart Budget</button>
+              <button class="ai-tab-btn" data-target="tab-runofshow" role="tab">⏱️ Run-of-Show</button>
+              <button class="ai-tab-btn" data-target="tab-vendors" role="tab">🤝 Vendor Roster</button>
+            </div>
+
+            <div id="ai-results-content" style="flex: 1;">
+              <!-- Tab 1: Theme -->
+              <div id="tab-theme" class="ai-tab-panel active">
+                <h3 style="margin-bottom: 0.5rem; color: var(--color-coral);">Sunset Coral & Gilded Rose</h3>
+                <p style="font-size: 0.92rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                  An ethereal romantic aesthetic featuring cascading coral florals (#E43D12), warm amber candlelight (#EFB11D), rose quartz textures (#D6536D), and gilded touches over alabaster ivory (#EBE9E1).
+                </p>
+
+                <h4 style="font-size: 0.82rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.5rem;">
+                  Signature Palette Harmonization
+                </h4>
+                <div class="palette-swatches">
+                  <div class="swatch-item"><span class="swatch-color" style="background: #E43D12;"></span><span>#E43D12 (Coral)</span></div>
+                  <div class="swatch-item"><span class="swatch-color" style="background: #D6536D;"></span><span>#D6536D (Rose)</span></div>
+                  <div class="swatch-item"><span class="swatch-color" style="background: #FFA2B6;"></span><span>#FFA2B6 (Blush)</span></div>
+                  <div class="swatch-item"><span class="swatch-color" style="background: #EFB11D;"></span><span>#EFB11D (Gold)</span></div>
+                  <div class="swatch-item"><span class="swatch-color" style="background: #EBE9E1;"></span><span>#EBE9E1 (Canvas)</span></div>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-surface); border-radius: var(--radius-sm); border: 1px dashed rgba(214,83,109,0.3);">
+                  <strong style="font-size: 0.85rem; color: var(--color-rose-dark);">Sensory Experience Note:</strong>
+                  <p style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.35rem;">
+                    Incorporate blood-orange spritz welcome beverages, 2400K filament amber uplighting, and acoustic Spanish flamenco or classical violin preludes to immerse guests immediately upon arrival.
+                  </p>
+                </div>
+              </div>
+
+              <!-- Tab 2: Allocations -->
+              <div id="tab-allocations" class="ai-tab-panel">
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1rem;">Click "Synthesize Bespoke Blueprint" to generate dynamic category allocations.</p>
+              </div>
+
+              <!-- Tab 3: Run of show -->
+              <div id="tab-runofshow" class="ai-tab-panel">
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1rem;">Run of show schedule will appear here after generation.</p>
+              </div>
+
+              <!-- Tab 4: Vendors -->
+              <div id="tab-vendors" class="ai-tab-panel">
+                <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1rem;">Curated vendor match checklist will appear here.</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 3. BUDGET ARCHITECT & COMMAND CENTER -->
+    <section id="budget" class="budget-section">
+      <div class="container">
+        
+        <div class="section-header reveal-on-scroll">
+          <span class="section-tag">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            Financial Command Center
+          </span>
+          <h2>Interactive Budget Architect</h2>
+          <p class="section-subtitle">
+            Dynamic allocation visualizer, real-time variance tracking, and AI-driven cost optimization.
+          </p>
+        </div>
+
+        <!-- AI Budget Health Banner -->
+        <div id="budget-ai-alert" class="reveal-on-scroll" style="margin-bottom: 2rem;"></div>
+
+        <div class="budget-grid">
+          
+          <!-- Visual Donut Chart Card -->
+          <div class="budget-chart-card reveal-left">
+            <h3 style="font-size: 1.15rem; margin-bottom: 0.25rem;">Spending Distribution</h3>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">Interactive Category Breakdown</span>
+
+            <div class="chart-wrapper">
+              <svg id="budget-donut-svg" viewBox="0 0 220 220" width="220" height="220" role="img" aria-label="Budget Breakdown Chart"></svg>
+              <div class="chart-center-info">
+                <div class="chart-center-label">Total Spent</div>
+                <div id="chart-center-amount" class="chart-center-amount">$0</div>
+              </div>
+            </div>
+
+            <div id="budget-chart-legend" class="chart-legend"></div>
+          </div>
+
+          <!-- KPI Cards Column -->
+          <div class="budget-stats-column reveal-right">
+            <div class="budget-kpi-card">
+              <div>
+                <div class="kpi-title">Target Budget</div>
+                <div id="kpi-total-budget" class="kpi-val">$0</div>
+              </div>
+              <span class="badge badge-gold">Allocated Cap</span>
+            </div>
+
+            <div class="budget-kpi-card">
+              <div>
+                <div class="kpi-title">Committed & Spent</div>
+                <div id="kpi-total-spent" class="kpi-val">$0</div>
+              </div>
+              <span id="kpi-budget-pct" class="badge badge-coral">0% Committed</span>
+            </div>
+
+            <div class="budget-kpi-card">
+              <div>
+                <div id="kpi-remaining-label" class="kpi-title">Remaining Balance</div>
+                <div id="kpi-remaining-budget" class="kpi-val" style="color: #196f3d;">$0</div>
+              </div>
+              <span class="badge badge-success">Buffer Safe</span>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+              <button class="btn btn-primary" onclick="window.budgetManager.showAddModal()" style="flex: 1;">
+                + Add Expense Item
+              </button>
+              <button class="btn btn-secondary" onclick="window.budgetManager.exportCSV()">
+                📥 Export CSV
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Expense Table Card -->
+        <div class="expense-table-card reveal-on-scroll">
+          <div class="expense-table-header">
+            <div>
+              <h3 style="font-size: 1.15rem;">Expense Ledger & Payment Milestones</h3>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Track vendor deposits, estimates, and settled balances</span>
+            </div>
+            <button class="btn btn-sm btn-outline-gold" onclick="window.budgetManager.showAddModal()">
+              + New Item
+            </button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="expense-table" aria-label="Event Expenses Ledger">
+              <thead>
+                <tr>
+                  <th scope="col">Description</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Estimated</th>
+                  <th scope="col">Actual</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="expense-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- 4. TIMELINE & RUN-OF-SHOW MASTER -->
+    <section id="timeline" class="timeline-section">
+      <div class="container">
+        
+        <div class="section-header reveal-on-scroll">
+          <span class="section-tag">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+            Execution Schedule
+          </span>
+          <h2>Smart Timeline & Run-of-Show</h2>
+          <p class="section-subtitle">
+            Seamlessly toggle between macro planning phases and the day-of minute-by-minute execution.
+          </p>
+        </div>
+
+        <!-- Readiness Progress Bar -->
+        <div class="reveal-on-scroll" style="background: var(--bg-surface-elevated); border-radius: var(--radius-md); padding: 1.25rem 1.75rem; border: 1px solid rgba(214,83,109,0.18); box-shadow: var(--shadow-sm); margin-bottom: 2rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem;">
+            <strong style="font-size: 0.92rem; color: var(--text-primary);">Overall Celebration Readiness</strong>
+            <span id="timeline-readiness-pct" style="font-weight: 700; color: var(--color-coral); font-size: 0.88rem;">0% Prepared</span>
+          </div>
+          <div style="width: 100%; height: 10px; background: rgba(214,83,109,0.12); border-radius: var(--radius-full); overflow: hidden;">
+            <div id="timeline-readiness-bar" style="height: 100%; width: 0%; background: linear-gradient(90deg, var(--color-coral), var(--color-gold)); transition: width 0.6s ease; border-radius: var(--radius-full);"></div>
+          </div>
+        </div>
+
+        <!-- View Switcher Tabs -->
+        <div class="timeline-nav-pills reveal-on-scroll">
+          <button id="view-btn-roadmap" class="timeline-view-btn active" onclick="window.timelineManager.setView('roadmap')">
+            📅 Milestone Roadmap (Months Out)
+          </button>
+          <button id="view-btn-run" class="timeline-view-btn" onclick="window.timelineManager.setView('runofshow')">
+            ⏰ Day-of Run of Show (Minute-by-Minute)
+          </button>
+        </div>
+
+        <!-- Action bar -->
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-bottom: 1.5rem;">
+          <button class="btn btn-sm btn-primary" onclick="window.timelineManager.showAddTaskModal()">
+            + Add Milestone Task
+          </button>
+          <button class="btn btn-sm btn-secondary" onclick="window.timelineManager.showAddRunModal()">
+            + Add Day-of Schedule
+          </button>
+        </div>
+
+        <!-- Roadmap View Container -->
+        <div id="timeline-roadmap-view" class="reveal-on-scroll"></div>
+
+        <!-- Day-of Run of Show Container (hidden by default) -->
+        <div id="timeline-run-view" class="reveal-on-scroll" style="display: none;"></div>
+
+      </div>
+    </section>
+
+    <!-- 5. VENDOR MANAGEMENT HUB -->
+    <section id="vendors" class="vendors-section">
+      <div class="container">
+        
+        <div class="section-header reveal-on-scroll">
+          <span class="section-tag">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            Partner Ecosystem
+          </span>
+          <h2>Vendor Directory & RFP Tracker</h2>
+          <p class="section-subtitle">
+            Manage quotes, contract deliverables, contact channels, and negotiated savings in one centralized hub.
+          </p>
+        </div>
+
+        <!-- Category Filter & Action Bar -->
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem;" class="reveal-on-scroll">
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn btn-sm btn-secondary" onclick="window.vendorManager.setCategoryFilter('all')">All</button>
+            <button class="btn btn-sm btn-ghost" onclick="window.vendorManager.setCategoryFilter('Venue')">Venue</button>
+            <button class="btn btn-sm btn-ghost" onclick="window.vendorManager.setCategoryFilter('Catering')">Catering</button>
+            <button class="btn btn-sm btn-ghost" onclick="window.vendorManager.setCategoryFilter('Photography')">Photo & Cinema</button>
+            <button class="btn btn-sm btn-ghost" onclick="window.vendorManager.setCategoryFilter('Florals')">Florals</button>
+            <button class="btn btn-sm btn-ghost" onclick="window.vendorManager.setCategoryFilter('Music')">Music & Sound</button>
+          </div>
+
+          <button class="btn btn-primary" onclick="window.vendorManager.showAddModal()">
+            + Onboard Partner Vendor
+          </button>
+        </div>
+
+        <!-- Vendors Grid -->
+        <div id="vendors-grid" class="vendors-grid reveal-on-scroll"></div>
+
+      </div>
+    </section>
+
+    <!-- 6. BESPOKE IDEAS & MOOD BOARD GALLERY -->
+    <section id="ideas" class="ideas-section">
+      <div class="container">
+        
+        <div class="section-header reveal-on-scroll">
+          <span class="section-tag">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            Personalized Inspiration
+          </span>
+          <h2>Bespoke Ideas & Mood Board</h2>
+          <p class="section-subtitle">
+            Curated sensory concepts with imagery, styling suggestions, and one-click adoption to your active plan.
+          </p>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="ideas-filter-bar reveal-on-scroll">
+          <button class="btn btn-sm btn-secondary ideas-filter-btn active" data-filter="all" onclick="window.ideasManager.setFilter('all')">All Concepts</button>
+          <button class="btn btn-sm btn-ghost ideas-filter-btn" data-filter="saved" onclick="window.ideasManager.setFilter('saved')">⭐ Saved Bookmarks</button>
+          <button class="btn btn-sm btn-ghost ideas-filter-btn" data-filter="drinks" onclick="window.ideasManager.setFilter('drinks')">🍸 Bar & Cocktails</button>
+          <button class="btn btn-sm btn-ghost ideas-filter-btn" data-filter="stationery" onclick="window.ideasManager.setFilter('stationery')">💌 Stationery & Gifts</button>
+          <button class="btn btn-sm btn-ghost ideas-filter-btn" data-filter="finale" onclick="window.ideasManager.setFilter('finale')">✨ Grand Finales</button>
+          <button class="btn btn-sm btn-primary" onclick="window.ideasManager.showAddModal()">+ Add Custom Concept</button>
+        </div>
+
+        <!-- Ideas Grid -->
+        <div id="ideas-grid" class="ideas-grid reveal-on-scroll"></div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer style="background: var(--bg-dark-accent); color: #FFFFFF; padding: 4rem 0 2rem; position: relative; z-index: 10;">
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 2rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+            <div class="brand-icon-wrapper" style="width: 36px; height: 36px;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+            </div>
+            <span style="font-family: var(--font-display); font-size: 1.3rem; font-weight: 700; color: #FFFFFF;">CelebraAI</span>
+          </div>
+          <p style="color: rgba(255,255,255,0.65); font-size: 0.85rem; max-width: 420px;">
+            Engineered with the palette: #E43D12 (Coral), #D6536D (Rose), #FFA2B6 (Blush), #EFB11D (Amber Gold), #EBE9E1 (Canvas).
+          </p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <button class="btn btn-sm btn-outline-gold" onclick="window.app.resetCurrentTemplate()">
+            Reset Template
+          </button>
+          <button class="btn btn-sm btn-secondary" onclick="window.testRunner.showModal()">
+            ⚡ Run Test Suite
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 1.5rem; font-size: 0.8rem; color: rgba(255,255,255,0.45); flex-wrap: wrap; gap: 1rem;">
+        <div>© 2026 CelebraAI Experience Systems. Built for Weddings, Birthdays & Community Festivals.</div>
+        <div>Compliant with WCAG 2.1 AA Accessibility Standards.</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- FLOATING CHAT FAB & DRAWER -->
+  <button id="chat-fab-btn" class="chat-fab" onclick="window.app.toggleChatDrawer()" aria-label="Open Aura AI Concierge">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <span>Aura AI Concierge</span>
+  </button>
+
+  <div id="chat-drawer" class="chat-drawer" role="dialog" aria-label="Aura AI Chat Concierge">
+    <div class="chat-header">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        <span style="font-weight: 700; font-size: 0.95rem;">Aura AI Planning Concierge</span>
+      </div>
+      <button class="btn-close" style="color: white;" onclick="window.app.toggleChatDrawer()" aria-label="Close Chat">×</button>
+    </div>
+
+    <div id="chat-messages-body" class="chat-messages">
+      <div class="chat-msg bot">
+        Hello! I'm Aura, your GenAI event producer. Ask me about budget allocations, theme aesthetics, run-of-show timing, or vendor negotiation questions!
+        <div class="chat-msg-chips">
+          <button class="chat-chip" onclick="window.app.sendChatMessage('Suggest 3 signature cocktails')">🍸 3 Signature Cocktails</button>
+          <button class="chat-chip" onclick="window.app.sendChatMessage('How to save $2,000 on catering?')">💰 Cut Catering Costs</button>
+          <button class="chat-chip" onclick="window.app.sendChatMessage('Draft run of show timeline')">⏱️ Timeline Advice</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-row">
+      <input type="text" id="chat-user-input" class="chat-input" placeholder="Ask Aura about your celebration..." />
+      <button class="btn btn-sm btn-primary" onclick="window.app.sendChatMessage()" aria-label="Send message">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- FLOATING TEST SUITE FAB -->
+  <button class="test-suite-fab" onclick="window.testRunner.showModal()" title="Run In-App Automated Test Suite (Ctrl+Alt+T)" aria-label="Run Automated Tests">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+    <span>Test Runner</span>
+  </button>
+
+  <!-- ========================================================================
+       MODALS
+       ======================================================================== -->
+
+  <!-- 1. Expense Modal -->
+  <div id="expense-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="expense-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="expense-modal-title">Add New Expense Item</h3>
+        <button class="btn-close" onclick="window.budgetManager.closeModal()" aria-label="Close modal">×</button>
+      </div>
+      <form id="expense-form" onsubmit="window.budgetManager.saveForm(event)">
+        <input type="hidden" id="expense-edit-id" />
+        <div class="form-group">
+          <label for="expense-name" class="form-label">Item / Service Name</label>
+          <input type="text" id="expense-name" class="form-input" required placeholder="e.g. Floral Candelabras & Centerpieces" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="expense-category" class="form-label">Category</label>
+            <select id="expense-category" class="form-select">
+              <option value="Venue">Venue & Rentals</option>
+              <option value="Catering">Catering & Bar</option>
+              <option value="Photography">Photography & Cinema</option>
+              <option value="Florals & Decor">Florals & Decor</option>
+              <option value="Music & Sound">Music & Sound</option>
+              <option value="Attire & Beauty">Attire & Beauty</option>
+              <option value="Invitations & Favors">Invitations & Favors</option>
+              <option value="Logistics">Logistics & Permits</option>
+              <option value="Other">Other / Contingency</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="expense-status" class="form-label">Payment Status</label>
+            <select id="expense-status" class="form-select">
+              <option value="pending">Pending</option>
+              <option value="deposit">Deposit Paid (50%)</option>
+              <option value="paid">Paid in Full</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="expense-estimated" class="form-label">Estimated Cost ($)</label>
+            <input type="number" id="expense-estimated" class="form-input" min="0" step="10" required />
+          </div>
+          <div class="form-group">
+            <label for="expense-actual" class="form-label">Actual / Agreed Cost ($)</label>
+            <input type="number" id="expense-actual" class="form-input" min="0" step="10" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="expense-notes" class="form-label">Notes & Inclusions</label>
+          <textarea id="expense-notes" class="form-textarea" rows="2" placeholder="e.g. Includes delivery & breakdown at midnight"></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="window.budgetManager.closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Task Modal -->
+  <div id="task-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="task-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="task-modal-title">Add Milestone Task</h3>
+        <button class="btn-close" onclick="window.timelineManager.closeTaskModal()" aria-label="Close modal">×</button>
+      </div>
+      <form id="task-form" onsubmit="window.timelineManager.saveTaskForm(event)">
+        <div class="form-group">
+          <label for="task-title" class="form-label">Task Title</label>
+          <input type="text" id="task-title" class="form-input" required placeholder="e.g. Schedule Cake Tasting & Flavor Selection" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="task-phase" class="form-label">Planning Phase</label>
+            <select id="task-phase" class="form-select">
+              <option value="6-12 Months Out">6-12 Months Out</option>
+              <option value="3-6 Months Out">3-6 Months Out</option>
+              <option value="1-2 Months Out">1-2 Months Out</option>
+              <option value="2 Weeks Out">2 Weeks Out</option>
+              <option value="Week of Event">Week of Event</option>
+              <option value="Day of Event">Day of Event</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="task-priority" class="form-label">Priority</label>
+            <select id="task-priority" class="form-select">
+              <option value="high">High Priority</option>
+              <option value="medium">Medium Priority</option>
+              <option value="low">Low Priority</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="task-duedate" class="form-label">Target Due Window</label>
+          <input type="text" id="task-duedate" class="form-input" placeholder="e.g. In 2 Weeks / Nov 15" />
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="window.timelineManager.closeTaskModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Schedule Milestone</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Day-of Run-of-Show Modal -->
+  <div id="run-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="run-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="run-modal-title">Add Day-of Schedule Entry</h3>
+        <button class="btn-close" onclick="window.timelineManager.closeRunModal()" aria-label="Close modal">×</button>
+      </div>
+      <form id="run-form" onsubmit="window.timelineManager.saveRunForm(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="run-time" class="form-label">Schedule Time</label>
+            <input type="text" id="run-time" class="form-input" required placeholder="e.g. 05:30 PM" />
+          </div>
+          <div class="form-group">
+            <label for="run-assignee" class="form-label">Assignee / Lead</label>
+            <input type="text" id="run-assignee" class="form-input" placeholder="e.g. Banquet Captain & MC" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="run-title-input" class="form-label">Event Headline</label>
+          <input type="text" id="run-title-input" class="form-input" required placeholder="e.g. Sunset Golden Hour Portrait Session" />
+        </div>
+        <div class="form-group">
+          <label for="run-description" class="form-label">Detailed Instructions</label>
+          <textarea id="run-description" class="form-textarea" rows="2" placeholder="e.g. Photographer guides couple to conservatory terrace"></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="window.timelineManager.closeRunModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Schedule Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Vendor Modal -->
+  <div id="vendor-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="vendor-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="vendor-modal-title">Add Partner Vendor</h3>
+        <button class="btn-close" onclick="window.vendorManager.closeModal()" aria-label="Close modal">×</button>
+      </div>
+      <form id="vendor-form" onsubmit="window.vendorManager.saveVendorForm(event)">
+        <input type="hidden" id="vendor-edit-id" />
+        <div class="form-group">
+          <label for="vendor-name" class="form-label">Vendor / Company Name</label>
+          <input type="text" id="vendor-name" class="form-input" required placeholder="e.g. Lumière Cinema & Drone" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="vendor-category" class="form-label">Category</label>
+            <select id="vendor-category" class="form-select">
+              <option value="Venue">Venue</option>
+              <option value="Catering">Catering & Bar</option>
+              <option value="Photography">Photography</option>
+              <option value="Florals">Florals & Decor</option>
+              <option value="Music">Music & Entertainment</option>
+              <option value="Logistics">Logistics & Safety</option>
+              <option value="Bakery">Bakery & Cake</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="vendor-status" class="form-label">RFP Status</label>
+            <select id="vendor-status" class="form-select">
+              <option value="Researching">Researching</option>
+              <option value="Proposal Received">Proposal Received</option>
+              <option value="Contract Signed">Contract Signed</option>
+              <option value="Deposit Paid">Deposit Paid</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="vendor-quote" class="form-label">Initial Quote ($)</label>
+            <input type="number" id="vendor-quote" class="form-input" min="0" required />
+          </div>
+          <div class="form-group">
+            <label for="vendor-negotiated" class="form-label">Negotiated Price ($)</label>
+            <input type="number" id="vendor-negotiated" class="form-input" min="0" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="vendor-contact" class="form-label">Contact Email or Phone</label>
+          <input type="text" id="vendor-contact" class="form-input" required placeholder="e.g. bookings@lumiere.com" />
+        </div>
+        <div class="form-group">
+          <label for="vendor-deliverables" class="form-label">Contract Scope & Deliverables</label>
+          <textarea id="vendor-deliverables" class="form-textarea" rows="2" placeholder="e.g. 10 hours coverage, 2 lead cinematographers, 4K teaser reel"></textarea>
+        </div>
+        <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+          <input type="checkbox" id="vendor-sync-budget" checked style="width: 18px; height: 18px;" />
+          <label for="vendor-sync-budget" style="font-size: 0.88rem; font-weight: 600; cursor: pointer;">Automatically sync this vendor into Budget Ledger</label>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="window.vendorManager.closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Vendor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Idea Modal -->
+  <div id="idea-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="idea-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="idea-modal-title">Add Bespoke Concept</h3>
+        <button class="btn-close" onclick="window.ideasManager.closeModal()" aria-label="Close modal">×</button>
+      </div>
+      <form id="idea-form" onsubmit="window.ideasManager.saveIdeaForm(event)">
+        <div class="form-group">
+          <label for="idea-title-input" class="form-label">Concept Title</label>
+          <input type="text" id="idea-title-input" class="form-input" required placeholder="e.g. Vintage Champagne Tower with Blood Orange Spritz" />
+        </div>
+        <div class="form-group">
+          <label for="idea-category-input" class="form-label">Category</label>
+          <input type="text" id="idea-category-input" class="form-input" placeholder="e.g. Drinks & Revelry, Stationery, Ambiance" />
+        </div>
+        <div class="form-group">
+          <label for="idea-desc-input" class="form-label">Description & Styling Notes</label>
+          <textarea id="idea-desc-input" class="form-textarea" rows="3" required placeholder="e.g. 5 tiers of vintage crystal coupes illuminated with amber uplighting..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="idea-tags-input" class="form-label">Tags (comma-separated)</label>
+          <input type="text" id="idea-tags-input" class="form-input" placeholder="Luxe, Photo Op, Signature" />
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1rem;">
+          <button type="button" class="btn btn-secondary" onclick="window.ideasManager.closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Concept</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Gemini API Key Settings Modal -->
+  <div id="api-key-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="api-modal-title">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 id="api-modal-title">Google Gemini API Configuration</h3>
+        <button class="btn-close" onclick="window.app.closeApiKeyModal()" aria-label="Close modal">×</button>
+      </div>
+      <form onsubmit="window.app.saveApiKey(event)">
+        <p style="font-size: 0.88rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+          CelebraAI includes a built-in intelligent offline synthesis engine. To optionally connect live Google Gemini 1.5 Flash models for real-time generative capabilities, enter your personal API key below.
+        </p>
+
+        <div class="form-group">
+          <label for="gemini-api-key-input" class="form-label">Gemini API Key</label>
+          <input type="password" id="gemini-api-key-input" class="form-input" placeholder="AIzaSy..." autocomplete="off" />
+        </div>
+
+        <div style="font-size: 0.78rem; color: var(--color-rose-dark); margin-bottom: 1.25rem; background: var(--bg-surface); padding: 0.75rem; border-radius: var(--radius-sm); border: 1px solid rgba(214,83,109,0.2);">
+          <strong>Security Notice:</strong> Your key is stored exclusively in your local browser storage and is transmitted directly only to Google's official Gemini endpoint. It is never logged or shared.
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn btn-secondary" onclick="window.app.closeApiKeyModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Configuration</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. In-App Automated Test Suite Modal -->
+  <div id="test-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="test-modal-title">
+    <div class="modal-dialog" style="max-width: 720px;">
+      <div class="modal-header">
+        <div>
+          <h3 id="test-modal-title">Automated Test Suite Runner</h3>
+          <span style="font-size: 0.8rem; color: var(--text-muted);">Verifies Code Quality, Security, State, Accessibility & Calculations</span>
+        </div>
+        <button class="btn-close" onclick="window.testRunner.closeModal()" aria-label="Close modal">×</button>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <span id="test-suite-summary-badge" class="badge badge-success">Running Tests...</span>
+        <button class="btn btn-sm btn-outline-gold" onclick="window.testRunner.runAll()">
+          🔄 Re-run All Tests
+        </button>
+      </div>
+
+      <div id="test-suite-list" style="max-height: 420px; overflow-y: auto;"></div>
+
+      <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+        <button type="button" class="btn btn-secondary" onclick="window.testRunner.closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts in dependency order -->
+  <script src="scripts/state.js"></script>
+  <script src="scripts/ai-generator.js"></script>
+  <script src="scripts/budget.js"></script>
+  <script src="scripts/timeline.js"></script>
+  <script src="scripts/vendors.js"></script>
+  <script src="scripts/ideas.js"></script>
+  <script src="scripts/scroll-fx.js"></script>
+  <script src="scripts/test-suite.js"></script>
+  <script src="scripts/app.js"></script>
+</body>
+</html>

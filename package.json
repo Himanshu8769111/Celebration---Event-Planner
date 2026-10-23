@@ -1,0 +1,22 @@
+{
+  "name": "celebration-event-planner",
+  "version": "1.0.0",
+  "description": "CelebraAI — GenAI Celebration & Event Planner for Weddings, Birthdays & Community Festivals",
+  "main": "server.js",
+  "scripts": {
+    "dev": "node server.js",
+    "start": "node server.js",
+    "serve": "node server.js",
+    "test": "node scripts/test-runner-node.js"
+  },
+  "keywords": [
+    "event-planner",
+    "genai",
+    "weddings",
+    "birthdays",
+    "festivals",
+    "celebration"
+  ],
+  "author": "CelebraAI",
+  "license": "MIT"
+}
